@@ -1,8 +1,5 @@
 import os
-from Tkinter import *
-from turtle import *
-import PIL
-from PIL import Image,ImageTk
+from tkinter import *
 PathRoot = os.getcwd()
 #print(os.getcwd())
 
@@ -12,8 +9,17 @@ PathRoot = os.getcwd()
 mygrey = "#333333"
 mydarkgrey  = "#3C3C3C"
 CFinstance = 0  #variable that makes sure that only one instance of the Customer file can be summoned while it's running
-
-
+FilesInfolder = []    ## self explanatory
+FoldersInfolder = []
+Paddingfolder = 25
+imagefolder_path = "bin/folder_image.png"
+imagefile_path = "bin/file_image.png"
+foldery = 60
+absfoldery = 0# the y axis of the 6 upcoming folders , mutable
+shift = 0
+mem = 0
+firstmem = 0
+lines = 0
 #CORE OF DA CODE, DA WINDOW IS BELOW
 
 #theses are shortcuts to type faster, makes also the code more readable...
@@ -31,71 +37,67 @@ def isafolder(something):
         return True
     return False
 
-def listdirectory():      ##this function will list folders and files in the directory
+def listdirectory():    ##this function will list folders and files in the directory
+    global FoldersInfolder
+    global FilesInfolder
+    global imagefile_path
+    global imagefolder_path
+    global Paddingfolder
+    global shift
+    global Desk
+    global foldery
     goto("Customer_Files/")
     here = os.getcwd()
     inhere = os.listdir(here)
     FilesInfolder = []    ## self explanatory
     FoldersInfolder = []
-    Counthere = 0
+    Paddingfolder = 25
+
     for things in inhere:
-        Counthere += 1
         if isafile(things):
             FilesInfolder.append(things)
-
         else:
             FoldersInfolder.append(things)
     os.chdir(PathRoot)
-    Paddingfolder = 26
-    image_path = "bin/folder_image.png"
-    scale_y = 0 #position of the image y axis, evolve with elements
-    scale_x = 0 #position of the image x axis, evolve with elements (in iteration)
-    for elements in range(0,len(FoldersInfolder)):
-        
-        if elements == 6 or elements == 12 or elements == 18 or elements == 24:
-            #here it allows the images to jump on the 2nd line, in order to create a 6 x X grid
-            scale_y= 0
-            scale_x = 0
-
-        if elements <= 5 :
-            #Align folder icons on a 6x1 grid
-
-            exec "Apngfolder%s= Image.open(image_path)" % (elements)
-            exec "Bpngfolder%s= ImageTk.PhotoImage(Apngfolder%s)" % (elements, elements)
-            exec "Cpngfolder%s= Desk.create_image(26+35+Paddingfolder*%s + %s*70, 80, image=Bpngfolder%s)" % (elements,scale_x,scale_y,elements)
-            scale_y += 1
-            scale_x += 1
-
-        if elements > 5 and elements <= 11:
-            #conditions to place the 2nd line of the grid
-            exec "Apngfolder%s= Image.open(image_path)" % (elements)
-            exec "Bpngfolder%s= ImageTk.PhotoImage(Apngfolder%s)" % (elements, elements)
-            exec "Cpngfolder%s= Desk.create_image(26+35+Paddingfolder*%s + %s*70, 160, image=Bpngfolder%s)" % (elements,scale_x,scale_y,elements)
-            scale_y += 1
-            scale_x += 1
-        if elements > 11 and elements <= 17:
-            #conditions to place the 2nd line of the grid
-            exec "Apngfolder%s= Image.open(image_path)" % (elements)
-            exec "Bpngfolder%s= ImageTk.PhotoImage(Apngfolder%s)" % (elements, elements)
-            exec "Cpngfolder%s= Desk.create_image(26+35+Paddingfolder*%s + %s*70, 240, image=Bpngfolder%s)" % (elements,scale_x,scale_y,elements)
-            scale_y += 1
-            scale_x += 1
-        if elements > 17 and elements <= 23:
-            #conditions to place the 2nd line of the grid
-            exec "Apngfolder%s= Image.open(image_path)" % (elements)
-            exec "Bpngfolder%s= ImageTk.PhotoImage(Apngfolder%s)" % (elements, elements)
-            exec "Cpngfolder%s= Desk.create_image(26+35+Paddingfolder*%s + %s*70, 320, image=Bpngfolder%s)" % (elements,scale_x,scale_y,elements)
-            scale_y += 1
-            scale_x += 1
-
+    print(FoldersInfolder)
+    print(len(FoldersInfolder))
+    imagefolder_path = "bin/folder_image.png"
+    imagefile_path = "bin/file_image.png"
+    foldery = 60  # the y axis of the 6 upcoming folders , mutable
+    shift = 0
+    showthem()
+def clicked(event):
+    print("I got cliked !")
+def showthem():
+    global FoldersInfolder
+    global FilesInfolder
+    global imagefile_path
+    global imagefolder_path
+    global Paddingfolder
+    global shift
+    global Desk
+    global foldery
+    global absfoldery
+    global mem
+    global firstmem
+    global lines
+    absfoldery = foldery
+    for elements in range((len(FoldersInfolder))):
+        mem=elements+1
+        if (elements % 6) == 0:
+            lines = lines + 1
+            foldery = absfoldery * lines * 2 - absfoldery
+        folderImage = PhotoImage(file = "bin/folder_image.png")
+        exec("""Desk.create_image(Paddingfolder*{} +64 + {}*70,foldery,image = folderImage,tags = 'click{}')""".format(((elements + mem) %6),((elements + mem) %6),elements))
+        exec("""Desk.tag_bind('click{}','<Button-1>',clicked)""".format(elements))
+    for elements in range((len(FilesInfolder))):
+        if (elements + mem) % 6 == 0:
+            lines = lines + 1
+            foldery = absfoldery * lines * 2 - absfoldery
+        fileImage = PhotoImage(file = "bin/file_image.png")
+        exec("""Desk.create_image(Paddingfolder*{} +64 + {}*70,foldery,image = fileImage,tags = 'click{}')""".format(((elements + mem) %6),((elements + mem) %6),elements))
+        exec("""Desk.tag_bind('click{}','<Button-1>',clicked)""".format(elements))
     mainloop()
-
-
-
-# Apngfolder = Image.open("bin/folder_image.png")
-# Bpngfolder = ImageTk.PhotoImage(Apngfolder)
-# Cpngfolder = Desk.create_image(100, 80, image=Bpngfolder)
-
 
 
 def createCF():
@@ -111,30 +113,51 @@ def doNothing():
 ##Here i build the windows that are going to be used in my code, i'll start with the
 ##Customer file window
 def CFWindow():
-    global CFinstance
-    if CFinstance == 1:
-        pass
-    else:
-        CFinstance= 1
-        CFroot = Tk()
-        CFroot.title("New Customer")
-        LCFname = Label(CFroot,text = "Name")
-        LCFname.pack()
-        LCFSurname = Label(CFroot,text = "Surname")
-        LCFSurname.pack()
-        LCFMail = Label(CFroot,text = "Mail")
-        LCFMail.pack()
-        LCFnumber = Label(CFroot,text = "Number")
-        LCFnumber.pack()
-        LCFAdress = Label(CFroot,text = "Adress")
-        LCFAdress.pack()
-        CFroot.mainloop()
-        CFinstance = 0
+    CFinstance = 1
+    CFroot = Tk()
+    CFroot.title("New Customer")
+    LCF_Name = Label(CFroot,text = "Name")
+    LCF_Name.grid(row =0 , column =0 )
+    ECF_Name = Entry(CFroot)
+    ECF_Name.grid(row =0 , column =1 )
+    LCF_Surname = Label(CFroot,text = "Surname")
+    LCF_Surname.grid(row =1 , column =0 )
+    ECF_Surname = Entry(CFroot)
+    ECF_Surname.grid(row =1 , column =1 )
+    LCF_Mail1 = Label(CFroot,text = "Mail1")
+    LCF_Mail1.grid(row =2 , column =0 )
+    ECF_Mail1 = Entry(CFroot)
+    ECF_Mail1.grid(row =2 , column =1 )
+    LCF_Mail2 = Label(CFroot,text = "Mail2")
+    LCF_Mail2.grid(row =3, column =0 )
+    ECF_Mail2 = Entry(CFroot)
+    ECF_Mail2.grid(row =3 , column =1 )
+    LCF_Phone1 = Label(CFroot,text = "Phone1")
+    LCF_Phone1.grid(row =4 , column =0 )
+    ECF_Phone1 = Entry(CFroot)
+    ECF_Phone1.grid(row =4 , column =1 )
+    LCF_Phone2 = Label(CFroot,text = "Phone2")
+    LCF_Phone2.grid(row =5 , column =0 )
+    ECF_Phone2 = Entry(CFroot)
+    ECF_Phone2.grid(row =5 , column =1 )
+    LCF_Phone3 = Label(CFroot,text = "Phone3")
+    LCF_Phone3.grid(row =6 , column =0 )
+    ECF_Phone3 = Entry(CFroot)
+    ECF_Phone3.grid(row =6 , column =1 )
+    LCF_Adress = Label(CFroot,text = "Adress")
+    LCF_Adress.grid(row =7 , column =0 )
+    ECF_Adress = Entry(CFroot)
+    ECF_Adress.grid(row =7 , column = 1)
+    CFroot.mainloop()
+
+
+
+
+
+
 ##MAIN WINDOW
 def MainWindow():
-    global Deskwidth
     Deskwidth = 600
-    global Deskheight
     Deskheight = 800
     coreroot = Tk()
     coreroot.title("ProFile Manager")
